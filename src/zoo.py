@@ -85,6 +85,24 @@ class Zoo:
         enclosure.add_animal(animal)
         return animal
 
+    def feed_animal(self, animal_name: str) -> str:
+            from exception import AnimalNotFoundError, InsufficientFoodError
+            target = None
+            for animal in self.all_animals():
+                if animal.name.lower() == animal_name.lower():
+                    target = animal
+                break
+
+            if target is None:
+                from exception import AnimalNotFoundError
+                raise AnimalNotFoundError(animal_name)
+
+            # Try to feed it
+            food = target.preferred_food()
+            self._food.consume(food)          # raises InsufficientFoodError if empty
+            target.eat(food)
+            return f"🍽 {target.name} the {target.species} ate {food} — hunger now {target.hunger:.0f}"
+            
     # --- Daily tick ---
     def advance_day(self) -> dict:
         """
