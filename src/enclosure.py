@@ -105,7 +105,6 @@ class Enclosure(ICleanable):
 
 class FoodInventory:
     """Manages stock of all food types required by the zoo's animals."""
-
     def __init__(self):
         self._stock: dict[str, float] = {
             "eucalyptus": 50.0,
@@ -128,7 +127,6 @@ class FoodInventory:
     def restock(self, food_type: str, amount: float) -> float:
         """
         Add food to inventory and return the total cost.
-
         Raises:
             KeyError: if food_type is unknown
         """
@@ -137,7 +135,7 @@ class FoodInventory:
         cost = self._prices[food_type] * amount
         self._stock[food_type] += amount
         return cost
-
+ 
     def consume(self, food_type: str, amount: float = 1.0) -> None:
         """
         Deduct food from inventory.

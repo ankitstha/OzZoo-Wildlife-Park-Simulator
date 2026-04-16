@@ -231,13 +231,10 @@ class AnimalFactory:
     def get_habitat(species: str) -> str:
         """
         Return the required HABITAT_TYPE for a given species.
-
         Args:
             species: lowercase species name
-
         Returns:
             habitat type string
-
         Raises:
             ValueError: if species is not recognised
         """

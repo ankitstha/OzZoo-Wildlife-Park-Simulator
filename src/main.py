@@ -4,6 +4,7 @@ import os
 import platform
 from zoo import Zoo
 from enclosure import Enclosure
+from animals import AnimalFactory
 from exception import (
     InsufficientFundsError, EnclosureFullError,
     IncompatibleSpeciesError, InsufficientFoodError, AnimalNotFoundError
@@ -13,9 +14,10 @@ BORDER = "=" * 60
 THIN   = "-" * 60
 
 
-def clear():
+def clear() -> None:
     """Clear the terminal screen (Windows + Unix)."""
-    os.system("cls" if platform.system() == "Windows" else "clear")
+    command = "cls" if platform.system().lower() == "windows" else "clear"
+    os.system(command)
 
 
 def print_header(zoo: Zoo):
@@ -29,31 +31,28 @@ def print_header(zoo: Zoo):
     print(f"  📅 Day        : {zoo.day}")
     print(f"  💰 Funds      : ${zoo.funds:,.2f}")
     print(f"  🐾 Animals    : {len(animals)}")
-    print(f"  🏗 Enclosures : {len(zoo.enclosures)}")
-    print(f"  ❤️  Avg Health : {avg_health:.1f}%")
-    print(f"  🍽 Avg Hunger : {avg_hunger:.1f}%")
+    print(f"  🏗  Enclosures : {len(zoo.enclosures)}")
+    print(f"  ❤️ Avg Health : {avg_health:.1f}%")
+    print(f"  🍽  Avg Hunger : {avg_hunger:.1f}%")
     print(BORDER)
 
 
 def print_menu():
-    print(f"\n{THIN}")
-    print("  [1] View Animals")
-    print("  [2] View Enclosures")
-    print("  [3] View Food Stock")
-    print("  [4] Buy Food")
-    print("  [5] Buy Animal")
-    print("  [6] Feed an Animal")
-    print("  [7] Vet an Animal")
-    print("  [8] Clean an Enclosure")
-    print("  [T] Set Ticket Price")
-    print("  [N] Next Day  ▶")
-    print("  [Q] Quit")
+    print("  [1] 🐾 View Animals")
+    print("  [2] 🏗  View Enclosures")
+    print("  [3] 🌿 View Food Stock")
+    print("  [4] 🛒 Buy Food")
+    print("  [5] 🦘 Buy Animal")
+    print("  [6] 🍽  Feed an Animal")
+    print("  [7] 🩺 Vet an Animal")
+    print("  [8] 🧼 Clean an Enclosure")
+    print("  [T] 🎟  Set Ticket Price")
+    print("  [N] ⏭  Next Day")
+    print("  [Q] 🚪 Quit")
     print(THIN)
 
 
 def setup_zoo(zoo: Zoo):
-    from animals import AnimalFactory
-
     animal_list = [
         ("kangaroo",           "Kanga"),
         ("kangaroo",           "Boomer"),
@@ -66,12 +65,16 @@ def setup_zoo(zoo: Zoo):
 
     enclosures = {}
     for species, name in animal_list:
-        habitat = AnimalFactory.get_habitat(species)
-        if habitat not in enclosures:
-            enc = Enclosure(f"{habitat.title()} Habitat", habitat, 5)
-            zoo.add_enclosure(enc)
-            enclosures[habitat] = enc
-        zoo.buy_animal(species, name, enclosures[habitat], cost=0)
+        try:
+            habitat = AnimalFactory.get_habitat(species)
+            if habitat not in enclosures:
+                enc = Enclosure(f"{habitat.title()} Habitat", habitat, 5)
+                zoo.add_enclosure(enc)
+                enclosures[habitat] = enc
+            
+            zoo.buy_animal(species, name, enclosures[habitat], cost=0)
+        except Exception as e:
+            print(f"Failed to create {species} '{name}': {e}")
 
 
 def main():
@@ -223,6 +226,10 @@ def main():
             clear()
             print(f"\n  Thanks for playing OzZoo! 🦘\n")
             break
+        
+        else:
+            print("❌ Invalid option. Please choose 1-8, T, N, or Q.")
+            input("Press Enter to continue...")
 
     if zoo.game_over:
         clear()

@@ -1,7 +1,7 @@
 """Singleton Zoo class + daily game loop logic."""
 
 from __future__ import annotations
-from exception import InsufficientFundsError
+from exception import InsufficientFundsError, AnimalNotFoundError, InsufficientFoodError
 from enclosure import Enclosure, FoodInventory
 from visitor import Visitor
 from animals import Animal, AnimalFactory
@@ -27,7 +27,7 @@ class Zoo:
             return
         self._initialised = True
 
-        self._funds: float = 25_000.0
+        self._funds: float = 25000.0
         self._day: int = 0
         self._enclosures: list[Enclosure] = []
         self._food: FoodInventory = FoodInventory()
@@ -102,12 +102,24 @@ class Zoo:
             self._food.consume(food)          # raises InsufficientFoodError if empty
             target.eat(food)
             return f"🍽 {target.name} the {target.species} ate {food} — hunger now {target.hunger:.0f}"
+        
+    def vet_animal(self, animal_name: str) -> str:
+        target = next(
+            (a for a in self.all_animals() if a.name.lower() == animal_name.lower()),
+            None
+        )
+        if target is None:
+            raise AnimalNotFoundError(animal_name)
+
+        self.spend(150.0, "Vet fee")
+        target._health = min(100.0, target._health + 30.0)
+        target._happiness = min(100.0, target._happiness + 10.0)
+        return f"{target.name} was treated — HP now {target._health:.0f}"
             
     # --- Daily tick ---
     def advance_day(self) -> dict:
         """
         Simulate one full game day.
-
         Returns:
             A dict of events/messages that occurred this day.
         """
